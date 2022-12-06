@@ -77,18 +77,34 @@ contract Test{
     struct Funder {
         address addr;
         uint amount;
-
     }
     Funder public funder;
-
     function newFunder() public {
         funder = Funder({addr: msg.sender, amount: 10});
     }
 
+    // mapping
     mapping(address => uint) public balances;
     function updateBalance(uint newBalance) public {
         balances[msg.sender] = newBalance;
     }
+
+    // varible
+    constructor() payable{
+    }
+    function testApi1() public view returns (address){
+        return msg.sender;
+    }
+    function testApi2() public payable returns (uint256){
+        return msg.value;
+        // return block.coinbase;
+        // return block.difficulty;
+        // return block.number;
+        // return block.timestamp;
+        // return now;
+        // return tx.gasprice;
+    }
+
 
 
     function setA(uint x) public{
