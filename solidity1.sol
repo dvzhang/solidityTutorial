@@ -105,28 +105,109 @@ contract Test{
         // return tx.gasprice;
     }
 
-
-
-    function setA(uint x) public{
-        a = x;
-        emit Set_A(a );
+    // assert & require
+    function sendHalf(address payable addr) public payable returns (uint balance){
+        require(msg.value % 2 == 0);
+        uint balanceBeforeTransfer = address(this).balance;
+        addr.transfer(msg.value / 2);
+        assert(address(this).balance == balanceBeforeTransfer - msg.value / 2);
+        return address(this).balance;
     }
 
-    event Set_A(uint a);
-
-    struct Pos {
-        int lat;
-        int lng;
+    // Function
+    function simpleInput(uint a, uint b) public view returns (uint sum){
+        sum = a + b;
+    }
+    function testSimpleInput() public view returns (uint sum) {
+        sum = simpleInput({a:1, b:2});
+    }
+    function testSimpleInput2() public view returns (uint sum) {
+        sum = simpleInput(1, 2);
+    }
+    function simpleInput2(uint a,  uint b) 
+        public view returns (uint sum, uint mul){
+        sum = a + b;
+        mul = a * b;
+    }
+    function testSimpleInput3() public view returns (uint sum, uint mul) {
+        (sum, mul)  = simpleInput2(1, 2);
     }
 
-    address public ownerAddr;
-
-    modifier owner (){
-        require((msg.sender == ownerAddr));
-        _;
+    // control stream
+    function testWhile() public view returns(uint , uint ) {
+        uint i = 0;
+        uint sumOfOdd = 0;
+        uint sumOfEven = 0;
+        while (true) {
+            i ++;
+            if (i % 2 == 0){
+                sumOfEven += i;
+            } else {
+                sumOfOdd += i;
+            }
+            if (i > 10){
+                break;
+            }
+        }
+        sumOfOdd = sumOfOdd > 20 ? sumOfOdd + 10 : 0;
+        return (sumOfOdd, sumOfEven);
     }
 
-    function mine() owner {
-        a += 1;
+    
+
+    // scope
+    uint public data;
+    function testscope(uint a) private view returns(uint) {
+        return a + 1;
+    }
+    function setData(uint a) internal {
+        data = a;
+    }
+    function testSetData(uint a) external {
+        data = a;
+    }
+    function testSetData2() public {
+        setData(1);
+        // this.exSetData(1); 
+    }
+
+    // function
+    constructor(uint a) public{
+        data = a;
+    }
+    event EVENTA(uint a);
+    function testscope(uint a) public view returns(uint) {
+        return a + 1;
+    }
+    function f() public pure returns(uint) {
+        // return 1 * 2 + data;
+        return 1 * 2;
+    }
+    function fallback() public payable {}
+}
+
+
+contract Caller {
+    function callTest(Test test) public {
+        address(test).send(1 ether);
     }
 }
+
+contract D {
+    uint public a;
+
+    function readData() public{
+        Test test = new Test();
+        // test.setData(1);
+        test.testSetData(2);
+        // test.testSetData2();
+        a = test.data();
+    }
+}
+
+contract Test2 is Test {
+    function setData3(uint a) internal {
+        data = a;
+    }
+}
+
